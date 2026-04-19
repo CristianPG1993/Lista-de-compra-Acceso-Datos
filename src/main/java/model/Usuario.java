@@ -28,7 +28,9 @@ public class Usuario {
         this.password = password;
     }
 
-    //GETTERS
+    //====================
+    // GETTERS
+    //====================
 
     //Getter para devolver el id del usuario
     public int getId() {
@@ -56,8 +58,9 @@ public class Usuario {
     }
 
 
-    //SETTERS
-
+    //====================
+    // SETTERS
+    //====================
 
     public void setId(int id) {
         this.id = id;

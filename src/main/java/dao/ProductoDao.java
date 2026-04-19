@@ -9,7 +9,7 @@ import java.util.List;
 
 public class ProductoDao {
 
-    //Método para insertar un producto en la base de datos
+    //Mé_todo para insertar un producto en la base de datos
     public static void insertarProducto(Producto producto){
 
         //Query SQL para insertar un nuevo producto
@@ -43,7 +43,7 @@ public class ProductoDao {
         }
     }
 
-    //Método para listar todos los productos de la base de datos
+    //Mé_todo para listar todos los productos de la base de datos
     public static List<Producto> listarProductos(){
 
         //Lista donde se almacenarán todos los productos recuperados
@@ -91,7 +91,7 @@ public class ProductoDao {
         return productos;
     }
 
-    //Método para buscar un producto por su id
+    //Mé_todo para buscar un producto por su id
     public static Producto buscarProductoPorId(int idProducto){
 
         //Objeto que se devolverá (null si no se encuentra)
@@ -140,7 +140,7 @@ public class ProductoDao {
         return producto;
     }
 
-    //Método para actualizar un producto existente en la base de datos
+    //Mé_todo para actualizar un producto existente en la base de datos
     public static void actualizarProducto(Producto producto){
 
         //Query SQL para actualizar los datos de un producto
@@ -181,7 +181,7 @@ public class ProductoDao {
         }
     }
 
-    //Método para eliminar un producto de la base de datos por su id
+    //Mé_todo para eliminar un producto de la base de datos por su id
     public static void eliminarProducto(int idProducto){
 
         //Query SQL para eliminar el producto
