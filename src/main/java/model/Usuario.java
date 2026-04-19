@@ -58,6 +58,11 @@ public class Usuario {
 
     //SETTERS
 
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     //Setter para cambiar el nombre del usuario
     public void setNombre(String nombre) {
         this.nombre = nombre;

@@ -1,16 +1,15 @@
-import database.DatabaseConnection;
+import dao.ListaCompraDao;
+import dao.ProductoDao;
+import model.ListaCompra;
+import model.Producto;
 
-import java.sql.Connection;
+import java.math.BigDecimal;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
 
-        Connection conexion = DatabaseConnection.conectar();
-
-        if(conexion != null){
-            System.out.println("OK conexión");
-        } else {
-            System.out.println("Error conexión");
-        }
+        Producto p = new Producto("Leche", new BigDecimal("1.50"), "Lácteos");
+        ProductoDao.insertarProducto(p);
     }
 }

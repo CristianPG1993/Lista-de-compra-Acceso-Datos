@@ -2,11 +2,9 @@ package dao;
 
 import database.DatabaseConnection;
 import model.Usuario;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class UsuarioDao {
 
@@ -167,9 +165,9 @@ public class UsuarioDao {
         }
     }
 
-    //Mé_todo paara borrar un usuario por id
+    //Mé_todo para borrar un usuario por id
     public static void  eliminarUsuario(int id){
-        // Query SQL para eliminar un usuario (IMPORTANTE: no lleva *)
+        // Query SQL para eliminar un usuario
         String sql = "DELETE FROM usuarios WHERE id = ?";
 
         try{
