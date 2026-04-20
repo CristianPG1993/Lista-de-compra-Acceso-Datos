@@ -72,6 +72,7 @@ public class ListaCompraDao {
                 //Se crea el objeto Usuario con los datos obtenidos del JOIN
                 Usuario usuario = new Usuario(
                         rs.getInt("id"),
+                        rs.getString("dni"),
                         rs.getString("nombre"),
                         rs.getString("apellido"),
                         rs.getString("email"),
@@ -111,7 +112,7 @@ public class ListaCompraDao {
 
         //Query SQL con JOIN para obtener listas y datos del usuario en una sola consulta
         String sql = "SELECT lc.idLista, lc.nombreCompra, lc.fechaCreacion, " +
-                "u.id, u.nombre, u.apellido, u.email, u.password " +
+                "u.id,u.dni, u.nombre, u.apellido, u.email, u.password " +
                 "FROM listascompra lc " +
                 "JOIN usuarios u ON lc.idUsuario = u.id " +
                 "WHERE u.id = ?";
@@ -135,6 +136,7 @@ public class ListaCompraDao {
                 //Se crea el objeto Usuario con los datos obtenidos del JOIN
                 Usuario usuario = new Usuario(
                         rs.getInt("id"),
+                        rs.getString("dni"),
                         rs.getString("nombre"),
                         rs.getString("apellido"),
                         rs.getString("email"),
@@ -199,6 +201,7 @@ public class ListaCompraDao {
                 //Se crea el objeto Usuario con los datos obtenidos del JOIN
                 Usuario usuario = new Usuario(
                         rs.getInt("id"),
+                        rs.getString("dni"),
                         rs.getString("nombre"),
                         rs.getString("apellido"),
                         rs.getString("email"),

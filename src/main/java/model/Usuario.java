@@ -3,6 +3,7 @@ package model;
 public class Usuario {
 
     private int id;
+    private String dni;
     private String nombre;
     private String apellido;
     private String email;
@@ -11,17 +12,19 @@ public class Usuario {
     //Permite crear objetos Usuario
     public Usuario(){}
 
-    //Constructor sin id para que lo pueda consumir la base de datos
-    public Usuario(String nombre, String apellido, String email, String password) {
+    //Constructor sin id
+    public Usuario(String dni, String nombre, String apellido, String email, String password) {
+        this.dni = dni;
         this.nombre = nombre;
         this.apellido = apellido;
         this.email = email;
         this.password = password;
     }
 
-    //Constructor con id para poder obtener la información de la base de datos
-    public Usuario(int id, String nombre, String apellido, String email, String password) {
+    //Constructor con id
+    public Usuario(int id, String dni, String nombre, String apellido, String email, String password) {
         this.id = id;
+        this.dni = dni;
         this.nombre = nombre;
         this.apellido = apellido;
         this.email = email;
@@ -45,6 +48,11 @@ public class Usuario {
     //Getter para devolver el apellido del usuario
     public String getApellido() {
         return apellido;
+    }
+
+    //Getter para devolver el dni del usuario
+    public String getDni() {
+        return dni;
     }
 
     //Getter para devolver el email del usuario
@@ -76,6 +84,11 @@ public class Usuario {
         this.apellido = apellido;
     }
 
+    //Setter para cambiar el dni del usuario
+    public void setDni(String dni) {
+        this.dni = dni;
+    }
+
     //Setter para cambiar el email del usuario
     public void setEmail(String email) {
         this.email = email;
@@ -90,9 +103,11 @@ public class Usuario {
     public String toString() {
         return "Usuario{" +
                 "id=" + id +
+                ", dni='" + dni + '\'' +
                 ", nombre='" + nombre + '\'' +
                 ", apellido='" + apellido + '\'' +
                 ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
                 '}';
     }
 }

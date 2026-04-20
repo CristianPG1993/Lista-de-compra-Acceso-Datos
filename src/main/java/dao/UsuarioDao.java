@@ -12,7 +12,7 @@ public class UsuarioDao {
     public static void insertarUsuario(Usuario usuario){
 
         // Query SQL para insertar un usuario (uso de ? para evitar SQL Injection)
-        String sql = "INSERT INTO usuarios(nombre, apellido, email, password) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO usuarios(dni, nombre, apellido, email, password) VALUES (?, ?, ?, ?, ?)";
 
         try{
             // Se obtiene la conexión a la base de datos
@@ -22,10 +22,11 @@ public class UsuarioDao {
             PreparedStatement ps = connection.prepareStatement(sql);
 
             // Se asignan los valores del objeto Usuario a los parámetros de la query
-            ps.setString(1, usuario.getNombre());
-            ps.setString(2, usuario.getApellido());
-            ps.setString(3, usuario.getEmail());
-            ps.setString(4, usuario.getPassword());
+            ps.setString(1, usuario.getDni());
+            ps.setString(2, usuario.getNombre());
+            ps.setString(3, usuario.getApellido());
+            ps.setString(4, usuario.getEmail());
+            ps.setString(5, usuario.getPassword());
 
             // Se ejecuta la inserción en la base de datos
             ps.executeUpdate();
@@ -63,6 +64,7 @@ public class UsuarioDao {
 
                 Usuario usuario = new Usuario(
                         rs.getInt("id"),
+                        rs.getString("dni"),
                         rs.getString("nombre"),
                         rs.getString("apellido"),
                         rs.getString("email"),
@@ -107,6 +109,7 @@ public class UsuarioDao {
 
                 usuario = new Usuario(
                         rs.getInt("id"),
+                        rs.getString("dni"),
                         rs.getString("nombre"),
                         rs.getString("apellido"),
                         rs.getString("email"),
@@ -127,21 +130,71 @@ public class UsuarioDao {
         return usuario;
     }
 
+    //Mé_todo para buscar un usuario en la base de datos a partir de su DNI
+    public static Usuario buscarUsuarioPorDni(String dni){
+
+        //Objeto que se devolverá (null si no se encuentra el usuario)
+        Usuario usuario = null;
+
+        //Query SQL para buscar el usuario por DNI
+        String sql = "SELECT * FROM usuarios WHERE dni = ?";
+
+        try{
+            //Se obtiene la conexión a la base de datos
+            Connection connection = DatabaseConnection.conectar();
+
+            //Se prepara la consulta SQL
+            PreparedStatement ps = connection.prepareStatement(sql);
+
+            //Se asigna el DNI al parámetro de la query
+            ps.setString(1, dni);
+
+            //Se ejecuta la consulta
+            ResultSet rs = ps.executeQuery();
+
+            //Si existe un usuario con ese DNI, se crea el objeto Usuario
+            if(rs.next()){
+
+                usuario = new Usuario(
+                        rs.getInt("id"),          //id del usuario
+                        rs.getString("dni"),      //dni del usuario
+                        rs.getString("nombre"),   //nombre
+                        rs.getString("apellido"), //apellido
+                        rs.getString("email"),    //email
+                        rs.getString("password")  //contraseña
+                );
+            }
+
+            //Cierre de recursos para evitar fugas de memoria
+            rs.close();
+            ps.close();
+            connection.close();
+
+        } catch (SQLException e) {
+            //Muestra el error en caso de fallo
+            e.printStackTrace();
+        }
+
+        //Se devuelve el usuario encontrado o null si no existe
+        return usuario;
+    }
+
     //Mé_todo para actualizar el usuario
     public static void actualizarUsuario(Usuario usuario){
 
-        String sql = "UPDATE usuarios SET nombre = ?, apellido = ?, email = ?, password = ? WHERE id = ?";
+        String sql = "UPDATE usuarios SET dni = ?, nombre = ?, apellido = ?, email = ?, password = ? WHERE id = ?";
 
         try{
             Connection connection = DatabaseConnection.conectar();
 
             PreparedStatement ps = connection.prepareStatement(sql);
 
-            ps.setString(1, usuario.getNombre());
-            ps.setString(2, usuario.getApellido());
-            ps.setString(3, usuario.getEmail());
-            ps.setString(4, usuario.getPassword());
-            ps.setInt(5, usuario.getId());
+            ps.setString(1, usuario.getDni());
+            ps.setString(2, usuario.getNombre());
+            ps.setString(3, usuario.getApellido());
+            ps.setString(4, usuario.getEmail());
+            ps.setString(5, usuario.getPassword());
+            ps.setInt(6, usuario.getId());
 
 
             int filas = ps.executeUpdate();
