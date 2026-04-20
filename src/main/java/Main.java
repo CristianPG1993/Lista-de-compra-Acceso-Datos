@@ -35,7 +35,7 @@ public class Main {
             System.out.println("4. Añadir producto a una lista");
             System.out.println("5. Mostrar lista completa");
             System.out.println("6. Marcar item como comprado");
-            System.out.println("7. Calcular precio total de una lista");
+            System.out.println("7. Eliminar una lista");
             System.out.println("0. Salir");
             System.out.print("Seleccione una opción: ");
 
@@ -57,7 +57,7 @@ public class Main {
                 case 4 -> anadirProductoALista();
                 case 5 -> mostrarListaCompleta();
                 case 6 -> marcarItemComoComprado();
-                case 7 -> calcularTotalLista();
+                case 7 -> eliminarListaCompra();
                 case 0 -> System.out.println("Saliendo del programa...");
                 default -> System.out.println("Opción no válida.");
             }
@@ -226,85 +226,87 @@ public class Main {
         System.out.println("Producto creado correctamente.");
     }
 
-    //Mé_todo para añadir un producto a una lista de compra
-    private static void anadirProductoALista() {
+    //Método para añadir uno o varios productos a una lista de compra
+private static void anadirProductoALista() {
 
-        //Pedir el DNI del usuario
-        System.out.print("Introduce el DNI del usuario: ");
-        String dni = scanner.nextLine();
+    //Pedir el DNI del usuario
+    System.out.print("Introduce el DNI del usuario: ");
+    String dni = scanner.nextLine();
 
-        //Validar que no esté vacío
-        if (dni.isEmpty()) {
-            System.out.println("El DNI no puede estar vacío.");
-            return;
-        }
+    //Validar que no esté vacío
+    if (dni.isEmpty()) {
+        System.out.println("El DNI no puede estar vacío.");
+        return;
+    }
 
-        //Buscar el usuario en la base de datos
-        Usuario usuario = UsuarioDao.buscarUsuarioPorDni(dni);
+    //Buscar el usuario en la base de datos
+    Usuario usuario = UsuarioDao.buscarUsuarioPorDni(dni);
 
-        //Comprobar que exista
-        if (usuario == null) {
-            System.out.println("No se encontró ningún usuario con ese DNI.");
-            return;
-        }
+    //Comprobar que exista
+    if (usuario == null) {
+        System.out.println("No se encontró ningún usuario con ese DNI.");
+        return;
+    }
 
-        //Obtener las listas de compra del usuario
-        List<ListaCompra> listas = ListaCompraDao.listarListasPorUsuario(usuario.getId());
+    //Obtener las listas del usuario
+    List<ListaCompra> listas = ListaCompraDao.listarListasPorUsuario(usuario.getId());
 
-        //Comprobar que tenga listas
-        if (listas.isEmpty()){
-            System.out.println("Este usuario no tiene listas de compra.");
-            return;
-        }
+    //Comprobar que tenga listas
+    if (listas.isEmpty()){
+        System.out.println("Este usuario no tiene listas de compra.");
+        return;
+    }
 
-        //Mostrar listas del usuario
-        System.out.println("=== LISTAS DE COMPRA DEL USUARIO ===");
-        for (int i = 0; i < listas.size(); i++){
-            System.out.println((i + 1) + ". " + listas.get(i).getNombreCompra());
-        }
+    //Mostrar listas
+    System.out.println("=== LISTAS DE COMPRA DEL USUARIO ===");
+    for (int i = 0; i < listas.size(); i++){
+        System.out.println((i + 1) + ". " + listas.get(i).getNombreCompra());
+    }
 
-        //Pedir al usuario que elija una lista
-        System.out.print("Selecciona el número de la lista: ");
-        int opcion = scanner.nextInt();
-        scanner.nextLine();
+    //Seleccionar lista
+    System.out.print("Selecciona el número de la lista: ");
+    int opcion = scanner.nextInt();
+    scanner.nextLine();
 
-        //Validar opción
-        if (opcion < 1 || opcion > listas.size()){
-            System.out.println("Opción no válida.");
-            return;
-        }
+    if (opcion < 1 || opcion > listas.size()){
+        System.out.println("Opción no válida.");
+        return;
+    }
 
-        //Obtener la lista seleccionada
-        ListaCompra listaSeleccionada = listas.get(opcion - 1);
+    //Lista seleccionada
+    ListaCompra listaSeleccionada = listas.get(opcion - 1);
 
-        //Obtener todos los productos
+    String continuar = null;
+
+    //BUCLE para añadir múltiples productos
+    do {
+
+        //Obtener productos
         List<Producto> productos = ProductoDao.listarProductos();
 
-        //Comprobar que existan productos
         if (productos.isEmpty()){
             System.out.println("No hay productos disponibles.");
             return;
         }
 
         //Mostrar productos
-        System.out.println("=== PRODUCTOS PARA AÑADIR EN LA LISTA ===");
+        System.out.println("=== PRODUCTOS DISPONIBLES ===");
         for (int i = 0; i < productos.size(); i++){
-            System.out.println((i + 1) + ". " + productos.get(i).getNombre() +
+            System.out.println((i + 1) + ". " +
+                    productos.get(i).getNombre() +
                     " - " + productos.get(i).getPrecio() + "€");
         }
 
-        //Pedir al usuario que elija un producto
+        //Seleccionar producto
         System.out.print("Selecciona el número del producto a añadir: ");
         int opcionProducto = scanner.nextInt();
         scanner.nextLine();
 
-        //Validar opción
         if (opcionProducto < 1 || opcionProducto > productos.size()){
             System.out.println("Opción no válida.");
-            return;
+            continue; // vuelve a empezar el bucle
         }
 
-        //Obtener el producto seleccionado
         Producto productoSeleccionado = productos.get(opcionProducto - 1);
 
         //Pedir cantidad
@@ -312,13 +314,12 @@ public class Main {
         int cantidad = scanner.nextInt();
         scanner.nextLine();
 
-        //Validar cantidad
         if (cantidad <= 0){
             System.out.println("La cantidad debe ser mayor que 0.");
-            return;
+            continue; // vuelve a empezar el bucle
         }
 
-        //Crear el item de la lista
+        //Crear item
         ItemLista itemLista = new ItemLista(
                 productoSeleccionado,
                 listaSeleccionada,
@@ -327,24 +328,261 @@ public class Main {
                 false
         );
 
-        //Insertar el item en la base de datos
+        //Insertar en BD
         ItemListaDao.insertarItemLista(itemLista);
 
-        System.out.println("Producto añadido a la lista correctamente.");
-    }
+        System.out.println("Producto añadido a la lista.");
+
+        //Preguntar si quiere continuar
+        System.out.print("¿Deseas añadir otro producto? (s/n): ");
+        continuar = scanner.nextLine();
+
+    } while (continuar.equalsIgnoreCase("s"));
+}
 
     //Mé_todo para mostrar una lista completa con sus items
     private static void mostrarListaCompleta() {
-        System.out.println("Método mostrarListaCompleta pendiente de implementar.");
+
+        //Pedir el DNI del usuario
+        System.out.print("Introduce el DNI del usuario: ");
+        String dni = scanner.nextLine();
+
+        //Validar que el DNI no esté vacío
+        if (dni.isEmpty()) {
+            System.out.println("El DNI no puede estar vacío.");
+            return;
+        }
+
+        //Buscar el usuario en la base de datos a partir del DNI
+        Usuario usuario = UsuarioDao.buscarUsuarioPorDni(dni);
+
+        //Comprobar que el usuario exista
+        if (usuario == null) {
+            System.out.println("No se encontró ningún usuario con ese DNI.");
+            return;
+        }
+
+        //Obtener las listas de compra del usuario
+        List<ListaCompra> listas = ListaCompraDao.listarListasPorUsuario(usuario.getId());
+
+        //Comprobar que el usuario tenga listas
+        if (listas.isEmpty()){
+            System.out.println("Este usuario no tiene listas de compra.");
+            return;
+        }
+
+        //Mostrar las listas disponibles para que el usuario elija
+        System.out.println("=== LISTAS DE COMPRA DEL USUARIO ===");
+        for (int i = 0; i < listas.size(); i++){
+            System.out.println((i + 1) + ". " + listas.get(i).getNombreCompra());
+        }
+
+        //Pedir al usuario que seleccione una lista
+        System.out.print("Selecciona el número de la lista: ");
+        int opcion = scanner.nextInt();
+        scanner.nextLine();
+
+        //Validar que la opción esté dentro del rango correcto
+        if (opcion < 1 || opcion > listas.size()){
+            System.out.println("Opción no válida.");
+            return;
+        }
+
+        //Obtener la lista seleccionada (restando 1 porque el índice empieza en 0)
+        ListaCompra listaSeleccionada = listas.get(opcion - 1);
+
+        //Obtener los items asociados a la lista seleccionada
+        List<ItemLista> items = ItemListaDao.listarItemsPorLista(listaSeleccionada.getIdLista());
+
+        //Calcular el total de la lista
+        BigDecimal total = ItemListaDao.calcularPrecioTotalLista(listaSeleccionada.getIdLista());
+
+        //Mostrar cabecera de la lista
+        System.out.println("\n=== LISTA DE LA COMPRA ===");
+        System.out.println("Nombre de la lista: " + listaSeleccionada.getNombreCompra());
+        System.out.println("Usuario: " + usuario.getNombre() + " " + usuario.getApellido());
+        System.out.println();
+
+        //Comprobar si la lista tiene items
+        if (items.isEmpty()) {
+            System.out.println("La lista no tiene productos.");
+        } else {
+
+            //Recorrer todos los items de la lista
+            for (ItemLista item : items) {
+
+                //Calcular el subtotal (precioUnitario * cantidad)
+                BigDecimal subtotal = item.getPrecioUnitario()
+                        .multiply(BigDecimal.valueOf(item.getCantidad()));
+
+                //Mostrar información del producto
+                System.out.println("- " + item.getProducto().getNombre() +
+                        " x" + item.getCantidad() +
+                        " → " + subtotal + "€" +
+                        " | Comprado: " + item.isComprado());
+            }
+        }
+
+        //Mostrar el total final de la lista
+        System.out.println();
+        System.out.println("Total de la lista: " + total + "€");
     }
 
     //Mé_todo para marcar un item como comprado
     private static void marcarItemComoComprado() {
-        System.out.println("Método marcarItemComoComprado pendiente de implementar.");
+
+        //Pedir el DNI del usuario
+        System.out.print("Introduce el DNI del usuario: ");
+        String dni = scanner.nextLine();
+
+        //Validar que el DNI no esté vacío
+        if (dni.isEmpty()) {
+            System.out.println("El DNI no puede estar vacío.");
+            return;
+        }
+
+        //Buscar el usuario en la base de datos a partir del DNI
+        Usuario usuario = UsuarioDao.buscarUsuarioPorDni(dni);
+
+        //Comprobar que el usuario exista
+        if (usuario == null) {
+            System.out.println("No se encontró ningún usuario con ese DNI.");
+            return;
+        }
+
+        //Obtener las listas de compra del usuario
+        List<ListaCompra> listas = ListaCompraDao.listarListasPorUsuario(usuario.getId());
+
+        //Comprobar que el usuario tenga listas
+        if (listas.isEmpty()){
+            System.out.println("Este usuario no tiene listas de compra.");
+            return;
+        }
+
+        //Mostrar las listas disponibles para que el usuario elija
+        System.out.println("=== LISTAS DE COMPRA DEL USUARIO ===");
+        for (int i = 0; i < listas.size(); i++){
+            System.out.println((i + 1) + ". " + listas.get(i).getNombreCompra());
+        }
+
+        //Pedir al usuario que seleccione una lista
+        System.out.print("Selecciona el número de la lista: ");
+        int opcion = scanner.nextInt();
+        scanner.nextLine();
+
+        //Validar que la opción esté dentro del rango correcto
+        if (opcion < 1 || opcion > listas.size()){
+            System.out.println("Opción no válida.");
+            return;
+        }
+
+        //Obtener la lista seleccionada
+        ListaCompra listaSeleccionada = listas.get(opcion - 1);
+
+        //Obtener los items asociados a la lista seleccionada
+        List<ItemLista> items = ItemListaDao.listarItemsPorLista(listaSeleccionada.getIdLista());
+
+        //Comprobar si la lista tiene productos
+        if (items.isEmpty()) {
+            System.out.println("La lista no tiene productos.");
+            return;
+        }
+
+        //Mostrar los items de la lista
+        System.out.println("=== ITEMS DE LA LISTA ===");
+        for (int i = 0; i < items.size(); i++){
+
+            ItemLista item = items.get(i);
+
+            //Calcular subtotal del item
+            BigDecimal subtotal = item.getPrecioUnitario()
+                    .multiply(BigDecimal.valueOf(item.getCantidad()));
+
+            //Mostrar información del item
+            System.out.println((i + 1) + ". " +
+                    item.getProducto().getNombre() +
+                    " x" + item.getCantidad() +
+                    " → " + subtotal + "€" +
+                    " | Comprado: " + item.isComprado());
+        }
+
+        //Pedir al usuario que seleccione un item
+        System.out.print("Selecciona el número del item a marcar como comprado: ");
+        int opcionItem = scanner.nextInt();
+        scanner.nextLine();
+
+        //Validar opción seleccionada
+        if (opcionItem < 1 || opcionItem > items.size()) {
+            System.out.println("Opción no válida.");
+            return;
+        }
+
+        //Obtener el item seleccionado
+        ItemLista itemSeleccionado = items.get(opcionItem - 1);
+
+        //Actualizar el estado del item a comprado en la base de datos
+        ItemListaDao.marcarComoComprado(itemSeleccionado.getIdItem());
+
+        //Mensaje de confirmación
+        System.out.println("Item marcado como comprado correctamente.");
     }
 
-    //Mé_todo para calcular el precio total de una lista
-    private static void calcularTotalLista() {
-        System.out.println("Método calcularTotalLista pendiente de implementar.");
+    private static void eliminarListaCompra() {
+
+        System.out.print("Introduce el DNI del usuario: ");
+        String dni = scanner.nextLine();
+
+        if (dni.isEmpty()) {
+            System.out.println("El DNI no puede estar vacío.");
+            return;
+        }
+
+        Usuario usuario = UsuarioDao.buscarUsuarioPorDni(dni);
+
+        if (usuario == null) {
+            System.out.println("No se encontró ningún usuario con ese DNI.");
+            return;
+        }
+
+        //Obtener las listas de compra del usuario
+        List<ListaCompra> listas = ListaCompraDao.listarListasPorUsuario(usuario.getId());
+
+        //Comprobar que el usuario tenga listas
+        if (listas.isEmpty()){
+            System.out.println("Este usuario no tiene listas de compra.");
+            return;
+        }
+
+        //Mostrar las listas disponibles para que el usuario elija
+        System.out.println("=== LISTAS DE COMPRA DEL USUARIO ===");
+        for (int i = 0; i < listas.size(); i++){
+            System.out.println((i + 1) + ". " + listas.get(i).getNombreCompra());
+        }
+
+        //Pedir al usuario que seleccione una lista
+        System.out.print("Selecciona el número de la lista que desea eliminar: ");
+        int opcion = scanner.nextInt();
+        scanner.nextLine();
+
+        //Validar que la opción esté dentro del rango correcto
+        if (opcion < 1 || opcion > listas.size()){
+            System.out.println("Opción no válida.");
+            return;
+        }
+
+        //Obtener la lista seleccionada
+        ListaCompra listaSeleccionada = listas.get(opcion - 1);
+
+        //Confirmación
+        System.out.print("¿Seguro que quieres eliminar esta lista? (s/n): ");
+        String confirmacion = scanner.nextLine();
+
+        if (!confirmacion.equalsIgnoreCase("s")) {
+            System.out.println("Operación cancelada.");
+            return;
+        }
+
+        //Eliminar la lista
+        ListaCompraDao.eliminarListaCompra(listaSeleccionada.getIdLista());
     }
 }
