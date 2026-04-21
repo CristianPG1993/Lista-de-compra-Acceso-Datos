@@ -170,6 +170,109 @@ public class ListaCompraService {
         return ProductoDao.listarProductos();
     }
 
+    // Mé_todo que obtiene todos los productos (items) de una lista concreta
+    // Se usa desde el menú para mostrar qué productos tiene la lista seleccionada
+    public List<ItemLista> obtenerItemsDeLista(String dni, int indiceLista) {
+
+        // Validar que el DNI no esté vacío
+        if (dni.isEmpty()) {
+            System.out.println("El DNI no puede estar vacío.");
+            return List.of();
+        }
+
+        // Buscar al usuario por su DNI
+        Usuario usuario = UsuarioDao.buscarUsuarioPorDni(dni);
+
+        // Si el usuario no existe, devolver lista vacía
+        if (usuario == null) {
+            System.out.println("No se encontró ningún usuario con ese DNI.");
+            return List.of();
+        }
+
+        // Obtener las listas de compra asociadas al usuario
+        List<ListaCompra> listas = ListaCompraDao.listarListasPorUsuario(usuario.getId());
+
+        // Comprobar si el usuario tiene listas
+        if (listas.isEmpty()) {
+            System.out.println("Este usuario no tiene listas de compra.");
+            return List.of();
+        }
+
+        // Validar que la lista seleccionada exista
+        if (indiceLista < 1 || indiceLista > listas.size()) {
+            System.out.println("Opción no válida.");
+            return List.of();
+        }
+
+        // Obtener la lista seleccionada
+        ListaCompra listaSeleccionada = listas.get(indiceLista - 1);
+
+        // Devolver todos los items de esa lista
+        return ItemListaDao.listarItemsPorLista(listaSeleccionada.getIdLista());
+    }
+
+    // Mé_todo que marca como comprado un producto concreto dentro de una lista
+    // El usuario selecciona primero la lista y después el producto de esa lista
+    public void marcarComoComprado(String dni, int indiceLista, int indiceItem) {
+
+        // Validar que el DNI no esté vacío
+        if (dni.isEmpty()) {
+            System.out.println("El DNI no puede estar vacío.");
+            return;
+        }
+
+        // Buscar al usuario por DNI
+        Usuario usuario = UsuarioDao.buscarUsuarioPorDni(dni);
+
+        // Si no existe el usuario, cancelar operación
+        if (usuario == null) {
+            System.out.println("No se encontró ningún usuario con ese DNI.");
+            return;
+        }
+
+        // Obtener las listas del usuario
+        List<ListaCompra> listas = ListaCompraDao.listarListasPorUsuario(usuario.getId());
+
+        // Comprobar si el usuario tiene listas
+        if (listas.isEmpty()) {
+            System.out.println("Este usuario no tiene listas de compra.");
+            return;
+        }
+
+        // Validar que la lista seleccionada sea correcta
+        if (indiceLista < 1 || indiceLista > listas.size()) {
+            System.out.println("Opción no válida.");
+            return;
+        }
+
+        // Obtener la lista seleccionada
+        ListaCompra listaSeleccionada = listas.get(indiceLista - 1);
+
+        // Obtener los items de esa lista
+        List<ItemLista> items = ItemListaDao.listarItemsPorLista(listaSeleccionada.getIdLista());
+
+        // Comprobar si la lista tiene productos
+        if (items.isEmpty()) {
+            System.out.println("La lista no tiene productos.");
+            return;
+        }
+
+        // Validar que el producto seleccionado exista dentro de la lista
+        if (indiceItem < 1 || indiceItem > items.size()) {
+            System.out.println("Opción no válida.");
+            return;
+        }
+
+        // Obtener el item seleccionado
+        ItemLista itemSeleccionado = items.get(indiceItem - 1);
+
+        // Marcar el item como comprado en la base de datos
+        ItemListaDao.marcarComoComprado(itemSeleccionado.getIdItem());
+
+        // Mensaje de confirmación
+        System.out.println("Producto marcado como comprado.");
+    }
+
     // Mé_todo que añade un producto a una lista de compra
     // Valida usuario, lista, producto y cantidad antes de insertar el item
     public void anadirProductoALista(String dni, int indiceLista, int indiceProducto, int cantidad) {
@@ -310,7 +413,7 @@ public class ListaCompraService {
                 System.out.println("- " + item.getProducto().getNombre()
                         + " x" + item.getCantidad()
                         + " -> " + subtotal + "€"
-                        + " | Comprado: " + item.isComprado());
+                        + " | Comprado: " + (item.isComprado() ? "✔" : "✘"));
             }
         }
 

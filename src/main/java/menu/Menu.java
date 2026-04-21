@@ -1,5 +1,6 @@
 package menu;
 
+import model.ItemLista;
 import model.ListaCompra;
 import model.Producto;
 import service.ListaCompraService;
@@ -102,6 +103,7 @@ public class Menu {
             System.out.println("2. Actualizar lista de compra");
             System.out.println("3. Eliminar lista de compra");
             System.out.println("4. Mostrar lista ordenada por precio");
+            System.out.println("5. Hacer la compra");
             System.out.println("0. Volver");
             System.out.print("Seleccione una opción: ");
 
@@ -114,6 +116,7 @@ public class Menu {
                 case 2 -> actualizarListaCompra();
                 case 3 -> eliminarListaCompra();
                 case 4 -> mostrarListaOrdenadaPorPrecio();
+                case 5 -> hacerLaCompra();
                 case 0 -> System.out.println("Volviendo...");
                 default -> System.out.println("Opción no válida.");
             }
@@ -347,6 +350,96 @@ public class Menu {
 
         // Delegar la visualización al servicio
         listaCompraService.mostrarListaOrdenadaPorPrecio(dni, opcion);
+    }
+
+    //Mé_todo que permite marcar productos de una lista como comprados
+    // Después de cada cambio, vuelve a mostrar el estado actualizado de la lista
+    private void hacerLaCompra() {
+
+        // 1. Pedir DNI del usuario
+        System.out.print("Introduce el DNI del usuario: ");
+        String dni = scanner.nextLine();
+
+        // 2. Obtener listas del usuario
+        List<ListaCompra> listas = listaCompraService.obtenerListasPorDni(dni);
+
+        // Si no tiene listas, salir del método
+        if (listas.isEmpty()) {
+            return;
+        }
+
+        // 3. Mostrar listas disponibles
+        System.out.println("=== LISTAS DE COMPRA ===");
+        for (int i = 0; i < listas.size(); i++) {
+            System.out.println((i + 1) + ". " + listas.get(i).getNombreCompra());
+        }
+
+        // 4. Seleccionar lista
+        System.out.print("Seleccione el número de la lista: ");
+        int opcionLista = leerEntero();
+
+        String continuar;
+
+        // 5. Bucle para permitir marcar varios productos seguidos
+        do {
+
+            // Obtener los productos (items) de la lista seleccionada
+            List<ItemLista> items = listaCompraService.obtenerItemsDeLista(dni, opcionLista);
+
+            // Si la lista está vacía, salir
+            if (items.isEmpty()) {
+                System.out.println("La lista no tiene productos.");
+                return;
+            }
+
+            // Comprobar si todos los productos ya están comprados
+            boolean todosComprados = true;
+
+            for (ItemLista item : items) {
+                if (!item.isComprado()) {
+                    todosComprados = false;
+                    break;
+                }
+            }
+
+            // Si todos están comprados, mostrar resumen y finalizar
+            if (todosComprados) {
+                System.out.println("✔ Compra realizada. Lista completada.\n");
+                listaCompraService.mostrarListaCompleta(dni, opcionLista);
+                return;
+            }
+
+            // Mostrar estado actual de la lista
+            System.out.println("=== PRODUCTOS EN LA LISTA ===");
+            for (int i = 0; i < items.size(); i++) {
+                System.out.println((i + 1) + ". "
+                        + items.get(i).getProducto().getNombre()
+                        + " | Comprado: " + (items.get(i).isComprado() ? "✔" : "✘"));
+            }
+
+            // Seleccionar producto a marcar
+            System.out.print("Seleccione el número del producto que desea marcar como comprado: ");
+            int opcionItem = leerEntero();
+
+            // Marcar producto como comprado
+            listaCompraService.marcarComoComprado(dni, opcionLista, opcionItem);
+
+            // Volver a cargar la lista actualizada desde la base de datos
+            items = listaCompraService.obtenerItemsDeLista(dni, opcionLista);
+
+            // Mostrar lista actualizada tras la compra
+            System.out.println("\n=== LISTA ACTUALIZADA ===");
+            for (int i = 0; i < items.size(); i++) {
+                System.out.println((i + 1) + ". "
+                        + items.get(i).getProducto().getNombre()
+                        + " | Comprado: " + (items.get(i).isComprado() ? "✔" : "✘"));
+            }
+
+            // Preguntar si quiere marcar otro producto
+            System.out.print("¿Deseas marcar otro producto como comprado? (s/n): ");
+            continuar = scanner.nextLine();
+
+        } while (continuar.equalsIgnoreCase("s"));
     }
 
     // Mé_todo que solicita por consola los datos de un nuevo producto
